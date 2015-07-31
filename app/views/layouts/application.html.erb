@@ -13,7 +13,7 @@
         <%= csrf_meta_tags %>
     </head>
 
-    <body>
+    <body ng-app="procgarden">
         <%# container %>
         <div class="container-fluid sc-top-container">
             <%# header %>
@@ -42,10 +42,11 @@
         </div>
         <%# /container %>
 
-        <%= yield %>
-
         <%# body %>
         <div class="main-container" ng-view>
+
+            <%= yield %>
+
             <%# footer %>
             <div id="footer">
                 <div class="container-fluid">
