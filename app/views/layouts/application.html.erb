@@ -1,14 +1,62 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>Procgarden</title>
-  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
-  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
-  <%= csrf_meta_tags %>
-</head>
-<body>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<%= yield %>
+        <title>ProcGarden(仮)</title>
 
-</body>
+        <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+        <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+
+        <%= csrf_meta_tags %>
+    </head>
+
+    <body>
+        <%# container %>
+        <div class="container-fluid sc-top-container">
+            <%# header %>
+            <div class="navbar navbar-procgarden navbar-fixed-top" role="navigation">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+
+                        <%= link_to '/', {'class' => 'navbar-brand-procgarden'} do %>
+                            <img class="logo" src="/logo.png">
+                        <% end %>
+                    </div>
+
+                    <nav class="collapse navbar-collapse" role="navigation">
+                        <ul class="nav navbar-nav">
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <%# /header %>
+        </div>
+        <%# /container %>
+
+        <%= yield %>
+
+        <%# body %>
+        <div class="main-container" ng-view>
+            <%# footer %>
+            <div id="footer">
+                <div class="container-fluid">
+                    <p class="navbar-text pull-right">
+                        2013 - 2015 <%= link_to "@yutopp", "https://twitter.com/yutopp" %>
+                    </p>
+                </div>
+            </div>
+            <%# /footer %>
+        </div>
+        <%# /body %>
+
+    </body>
 </html>

@@ -159,6 +159,13 @@ GEM
       msgpack
     turbolinks (2.5.3)
       coffee-rails
+    typescript-node (1.4.1)
+      typescript-src (~> 1.4.1)
+    typescript-rails (0.6.1)
+      railties
+      tilt
+      typescript-node (>= 1.4.1)
+    typescript-src (1.4.1.3)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
     uglifier (2.7.1)
@@ -192,5 +199,6 @@ DEPENDENCIES
   sqlite3
   torigoya_kit
   turbolinks
+  typescript-rails
   uglifier (>= 1.3.0)
   web-console (~> 2.0)

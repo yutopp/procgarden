@@ -1,0 +1,21 @@
+{
+  "name": "procgarden",
+  "version": "0.0.0",
+  "authors": [
+    "yutopp <yutopp@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-sass": "~3.3.5",
+    "angular": "~1.4.3",
+    "codemirror": "~5.5.0",
+    "angular-ui-codemirror": "~0.3.0"
+  }
+}
