@@ -1,4 +1,12 @@
 Rails.application.routes.draw do
+  mount ProcGarden::API => '/api'
+
+  # home
+  get '/' => 'home#index'
+
+  # hooks
+  post '/hooks/factory_hook' => 'hooks#factory_hook'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

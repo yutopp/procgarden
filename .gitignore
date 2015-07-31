@@ -18,3 +18,8 @@
 
 #
 /vendor/bundle
+
+#
+.env
+
+*_test.sh
