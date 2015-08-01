@@ -15,4 +15,6 @@
 //= require turbolinks
 //= require bootstrap/dist/js/bootstrap
 //= require angular/angular
+// Templates in app/assets/javascripts/templates
+//= require_tree ./templates
 //= require_tree .

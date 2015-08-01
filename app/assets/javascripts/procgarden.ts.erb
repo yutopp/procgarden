@@ -1,3 +1,4 @@
+// -*- mode: typescript -*-
 /// <reference path="./typings/angularjs/angular.d.ts"/>
 
 module ProcGarden {
@@ -17,12 +18,7 @@ module ProcGarden {
             controller = ['$http', Controller];
             controllerAs = 'ctrl';
 
-            template = `
-                <div>
-                testtest
-                </div>
-                `;
-
+            templateUrl = '<%= asset_path("templates/hoge.html") %>';
         }
     }
 
