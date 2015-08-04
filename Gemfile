@@ -35,6 +35,8 @@ gem 'unicorn'
 
 # Use Capistrano for deployment
 gem 'capistrano-rails', group: :development
+gem 'capistrano-rbenv', group: :development
+gem 'capistrano3-unicorn', group: :development
 
 # API
 gem 'grape'
