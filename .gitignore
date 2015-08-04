@@ -19,7 +19,7 @@
 #
 /vendor/bundle
 /vendor/assets/bower_components
-/app/assets/javascripts/typings
+/app/assets/typings
 /public/assets
 
 #
