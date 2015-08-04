@@ -1,8 +1,6 @@
 root = "/home/pg_front/nginx/pg.yutopp.net/current"
 working_directory root
 
-pid "#{root}/tmp/pids/unicorn.pid"
-
 stderr_path "#{root}/log/unicorn.log"
 stdout_path "#{root}/log/unicorn.log"
 
@@ -10,6 +8,7 @@ worker_processes 2
 timeout 30
 preload_app true
 
+pid "/tmp/unicorn.procgarden.pid"
 listen '/tmp/unicorn.procgarden.sock', backlog: 64
 
 before_fork do |server, worker|
