@@ -20,8 +20,12 @@
 /vendor/bundle
 /vendor/assets/bower_components
 /app/assets/javascripts/typings
+/public/assets
 
 #
 .env
+.frontend_version
+config/deploy.rb
+config/deploy/
 
 *_test.sh

@@ -1,0 +1,31 @@
+<div>
+    aaaaann<br>
+
+    ooon {{ctrl.currentProfile}}<br>
+
+    <div ng-show="ctrl.currentProfile.is_build_required">
+        <procgarden-ticket-exec
+            exec="ticket.compile"
+            exec-profile="$parent.ctrl.currentProfile.compile">
+        </procgarden-ticket-exec>
+
+        <div ng-show="ctrl.currentProfile.is_link_independent">
+            <procgarden-ticket-exec
+                exec="ticket.link"
+                exec-profile="$parent.ctrl.currentProfile.link">
+            </procgarden-ticket-exec>
+        </div>
+    </div>
+
+    <div ng-repeat="exec in ticket.execs track by $index">
+        gobobobo<br>
+        {{$parent.ctrl.currentProfile}}
+        <procgarden-ticket-exec
+            exec="exec"
+            exec-profile="$parent.ctrl.currentProfile.exec">
+        </procgarden-ticket-exec>
+        aaaaa
+        {{exec}}
+    </div>
+
+</div>

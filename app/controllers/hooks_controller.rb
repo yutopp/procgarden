@@ -5,7 +5,11 @@ class HooksController < ApplicationController
 
   def factory_hook
     payload = request.raw_post
-    secret = ENV['TORIGOYA_HOOK_SECRET']
+    secret = if Rails.env.production? then
+               ENV['TORIGOYA_HOOK_SECRET']
+             else
+               "10101"
+             end
 
     expected_sig = OpenSSL::HMAC.hexdigest("sha1", secret, payload)
     factory_sig = request.headers["X-Torigoya-Factory-Signature"]

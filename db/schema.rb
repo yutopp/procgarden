@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150731151810) do
+ActiveRecord::Schema.define(version: 20150802014650) do
 
   create_table "entries", force: :cascade do |t|
     t.integer  "user_id"
@@ -66,14 +66,15 @@ ActiveRecord::Schema.define(version: 20150731151810) do
 
   create_table "tickets", force: :cascade do |t|
     t.integer  "entry_id"
-    t.integer  "index",        null: false
-    t.boolean  "do_execute",   null: false
-    t.string   "proc_name",    null: false
-    t.string   "proc_version", null: false
-    t.string   "proc_label",   null: false
-    t.integer  "phase",        null: false
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
+    t.integer  "index",                        null: false
+    t.boolean  "do_execute",                   null: false
+    t.string   "proc_name",                    null: false
+    t.string   "proc_version",                 null: false
+    t.string   "proc_label",                   null: false
+    t.integer  "phase",                        null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.boolean  "is_finished",  default: false, null: false
   end
 
 end

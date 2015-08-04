@@ -84,6 +84,14 @@ class TickerExecutorJob < ActiveJob::Base
     puts ticket_id
     ticket = Ticket.find(ticket_id)
     raise "a" if ticket.nil?
+
+    if ticket.do_execute == 0
+      ticket.phase = Ticket::Phase::NotExecuted
+      ticket.is_finished = true
+      ticket.save
+      return
+    end
+
     source_codes = SourceCode.find(source_code_ids)
     raise "b" if source_codes.nil? || source_codes.length == 0
 
@@ -162,11 +170,22 @@ class TickerExecutorJob < ActiveJob::Base
         raise "Unexpected error: unknown message was recieved (#{res.class})"
       end
 
-      ticket.save!
+      # ticket.save!
 
       #Rails.logger.debug res.to_s
 
     end # do |res|
+
+    ticket.phase = Ticket::Phase::Success
+    ticket.is_finished = true
+    ticket.save!
+
+  rescue => e
+    ticket.phase = Ticket::Phase::Error
+    ticket.is_finished = true
+    ticket.save
+
+    raise
   end
 
 end

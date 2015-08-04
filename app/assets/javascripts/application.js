@@ -15,6 +15,12 @@
 //= require turbolinks
 //= require bootstrap/dist/js/bootstrap
 //= require angular/angular
+//= require angular-ui-bootstrap-bower
+//= require codemirror
+//= require angular-ui-codemirror
+//= require select2/select2
+//= require angular-select2/dist/angular-select2
+//
 // Templates in app/assets/javascripts/templates
 //= require_tree ./templates
 //= require_tree .

@@ -1,31 +1,394 @@
 // -*- mode: typescript -*-
 /// <reference path="./typings/angularjs/angular.d.ts"/>
+/// <reference path="./typings/codemirror/codemirror.d.ts"/>
+/// <reference path="./base64_utf8.ts"/>
 
 module ProcGarden {
-    export module EntryDirective {
-        class Controller {
-            constructor(private $http: ng.IHttpService) {
+    interface Gon {
+        profiles: Array<Profile>
+    }
+    declare var gon: Gon;
+
+    interface ExecProfile {
+        extention: string;
+        raw_commands: Array<string>;
+        raw_envs: {[key: string]: string};
+        fixed_commands: Array<Array<string>>;
+        selectable_options: {[key: string]: Array<string>};
+        cpu_limit: number;
+        memory_limit: number
+    }
+
+    interface Profile {
+        name: string;
+        version: string;
+        display_version: string;
+        is_build_required: boolean;
+        is_link_independent: boolean;
+        compile: ExecProfile;
+        link: ExecProfile;
+        run: ExecProfile;       // not 'exec'. be careful3
+    }
+
+    class SourceCode {
+        constructor(public filename: string, public code: string) {
+        }
+    }
+
+
+    class ExecInstruction {
+        constructor() {
+        }
+
+        public toRequest() {
+            return {
+                stdin: this.stdin,
+                commands: this.commands,
+                options: this.selectedOptions,
             }
+        }
+
+        public update(resp: Response.ExecStatus) {
+            if ( resp == null ) return;
+
+            console.log(resp);
+            this.nextOutputOffset = resp.outputs_next_offset;
+            resp.outputs.forEach((out: Response.Output) => {
+                var decodedBuffer = Util.b64ToUtf8(out.buffer);
+                switch(out.fd) {
+                case Response.OutputType.stdout:
+                    this.stdout += decodedBuffer;
+                    break;
+                case Response.OutputType.stderr:
+                    this.stderr += decodedBuffer;
+                    break
+                }
+            });
+
+            console.log(this.stdout);
+        }
+
+        // user input
+        public stdin: string;
+        public commands: Array<string>;
+        public selectedOptions: Array<string>;
+
+        // other
+        public options: Array<string>;
+        public nextOutputOffset: number = 0;
+
+        public stdout: string = "aaa1";
+        public stderr: string = "aaa2";
+    }
+
+    class Ticket {
+        constructor() {
+            this.use = "dlang.dmd";
+            this.version = "HEAD";
+            this.do_exec = 1;
+
+            this.compile = new ExecInstruction();
+            this.link = new ExecInstruction();
+            this.execs = [new ExecInstruction()];
+
+            this.isFinished = false;
+        }
+
+        public update(resp: Response.Ticket) {
+            this.phase = resp.phase;
+            this.isFinished = resp.is_finished;
+
+            if ( this.compile != null ) {
+                this.compile.update(resp.compile);
+            }
+            if ( this.link != null ) {
+                this.link.update(resp.link);
+            }
+            if ( this.execs != null ) {
+                this.execs.forEach((e, index) => {
+                    e.update(resp.execs[index]);
+                });
+            }
+        }
+
+        public reset() {
+            this.phase = Response.Phase.waiting;
+            this.isFinished = false;
+        }
+
+        public offsetValues() {
+            var value: any = {};
+            if ( this.compile != null ) {
+                value['compile'] = this.compile.nextOutputOffset;
+            }
+            if ( this.link != null ) {
+                value['link'] = this.link.nextOutputOffset;
+            }
+            if ( this.execs != null ) {
+                value['execs'] = this.execs.map((e) => e.nextOutputOffset);
+            }
+
+            return value;
+        }
+
+        // user
+        public use: string;
+        public version: string;
+        public do_exec: number;
+
+        public compile: ExecInstruction;
+        public link: ExecInstruction;
+        public execs: Array<ExecInstruction>;
+
+        // from server
+        public phase: Response.Phase;
+        public isFinished: boolean;
+    }
+
+    module Response {
+        export enum Phase {
+            waiting = 0,
+            notExecuted = 10,
+            compiling = 200,
+            compiled = 250,
+            linking = 280,
+            linked = 281,
+            running = 300,
+            success = 400,
+            error = 401,
+        }
+
+        export enum OutputType {
+            stdout = 1,
+            stderr = 2,
+        }
+
+        export interface Output {
+            buffer: string;
+            fd: number;
+        }
+
+        export interface ExecStatus {
+            index: number;
+            exited: boolean;
+            exit_status: number;
+            signaled: boolean;
+            signal: number;
+            used_cpu_time_sec: number;
+            used_memory_bytes: number;
+            system_error_status: number;
+            system_error_message: string;
+
+            outputs_offset: number;
+            outputs_next_offset: number;
+            outputs: Array<Output>;
+
+            created_at: string;
+            updated_at: string;
+        }
+
+        export interface Ticket {
+            index: number;
+            do_execute: number;
+            proc_name: string;
+            proc_version: string;
+            proc_label: string;
+            phase: number;
+            is_finished: boolean;
+
+            compile: ExecStatus;
+            link: ExecStatus;
+            execs: Array<ExecStatus>;
+
+            entry_id: number;
+            created_at: string;
+            updated_at: string;
+        }
+    }
+
+
+
+    module TicketExecDirective {
+        export class Controller {
+            constructor() {
+                console.log("exec inst", this);
+            }
+
+            private exec: ExecInstruction;
+        }
+
+        export class Directive implements ng.IDirective {
+            restrict = 'AE';
+            transclude = true;
+            replace = false;
+            scope = true;
+            bindToController = {
+                exec: '=',
+                execProfile: '=',
+            };
+            controller = [Controller];
+            controllerAs = 'ctrl';
+
+            templateUrl = '<%= asset_path("templates/_ticket_exec.html") %>';
+        }
+    }
+
+    module TicketDirective {
+        export class Controller {
+            constructor() {
+                this.profiles = gon.profiles;
+                console.log(this.profiles);
+                this.selectProfile(0);
+            }
+
+            public selectProfile(index: number) {
+                this.currentProfile = this.profiles[index];
+                console.log(this.currentProfile);
+            }
+
+            private ticket: Ticket;
+            private profiles: Array<Profile>;
+            private currentProfile: Profile;
         }
 
         export class Directive implements ng.IDirective {
             restrict = 'AE';
             transclude = true;
             replace = true;
-            scope = {};
+            scope = true;
+            //require = ['^procgardenEntry'];
             bindToController = {
+                ticket: '=',
+                profiles: '=',
+                currentProfile: '=',
             };
-            controller = ['$http', Controller];
+            controller = [Controller];
             controllerAs = 'ctrl';
 
-            templateUrl = '<%= asset_path("templates/hoge.html") %>';
+            templateUrl = '<%= asset_path("templates/_ticket.html") %>';
         }
     }
 
-    var app = angular.module("procgarden", []);
+
+    module EditorDirective {
+        export class Controller {
+            constructor() {
+            }
+
+            private codemirrorLoaded(editor: CodeMirror.Editor) {
+                editor.setSize(200, 100);
+            }
+
+            private sourceCode: SourceCode;
+            private options = {
+                lineNumbers: true,
+            };
+        }
+
+        export class Directive implements ng.IDirective {
+            restrict = 'AE';
+            transclude = true;
+            replace = true;
+            scope = true;
+            bindToController = {
+                sourceCode: '=',
+            };
+            controller = [Controller];
+            controllerAs = 'ctrl';
+
+            templateUrl = '<%= asset_path("templates/_editor.html") %>';
+        }
+    }
+
+
+    export module EntryDirective {
+        export class Controller {
+            constructor(
+                private $http: ng.IHttpService,
+                private $timeout: ng.ITimeoutService
+            ) {
+                var txt = `import std.stdio;
+
+void main() {
+	for(int i=0; i<20; ++i ) {
+    	"鳥小屋\x80\x24".writeln;
+    }
+}`;
+
+                this.sourceCodes = [new SourceCode('aaa.d', txt)];
+                this.tickets = [new Ticket()];
+            }
+
+            public submit() {
+                this.$http.post('/api/v1/entries', {
+                    visibility: 1,
+                    source_codes: this.sourceCodes,
+                    tickets: this.tickets,
+                }).success((data: any, status: any, headers: any, config: any) => {
+                    // TODO: error check1
+                    console.log("success", data);
+
+                    data.ticket_ids.forEach((id: number, index: number) => {
+                        this.wait_for_ticket(id, this.tickets[index]);
+                    });
+
+                }).error((data: any, status: any, headers: any, config: any) => {
+                    console.log("error", data);
+                });
+
+                console.log("submit!")
+            }
+
+            private wait_for_ticket(ticket_id: number, ticket: Ticket) {
+                console.log(ticket.offsetValues());
+                this.$http.get(`/api/v1/tickets/${ticket_id}`, {
+                    params: {
+                        offsets: ticket.offsetValues(),
+                    }
+                }).success((data: Response.Ticket, status: any, headers: any, config: any) => {
+                    console.log("ticket success", data);
+                    // TODO: error check
+
+                    ticket.update(data);
+
+                    if ( data.is_finished == false ) {
+                        this.$timeout(() => {
+                            this.wait_for_ticket(ticket_id, ticket);
+                        }, 200);
+                    }
+
+                }).error((data: any, status: any, headers: any, config: any) => {
+                    console.log("ticket error", data);
+                });
+            }
+
+            public sourceCodes: Array<SourceCode>;
+            public tickets: Array<Ticket>;
+        }
+
+        export class Directive implements ng.IDirective {
+            restrict = 'AE';
+            transclude = true;
+            replace = true;
+            scope = true;
+            bindToController = {
+                sourceCodes: '=',
+                tickets: '=',
+            };
+            controller = ['$http', '$timeout', Controller];
+            controllerAs = 'ctrl';
+
+            templateUrl = '<%= asset_path("templates/_entry.html") %>';
+        }
+    }
+
+    var app = angular.module("procgarden", ['ui.bootstrap', 'ui.codemirror', 'rt.select2']);
 
     app
         .directive("procgardenEntry", () => new EntryDirective.Directive())
+        .directive("procgardenEditor", () => new EditorDirective.Directive())
+        .directive("procgardenTicket", () => new TicketDirective.Directive())
+        .directive("procgardenTicketExec", () => new TicketExecDirective.Directive())
 
     console.log('loaded');
 }

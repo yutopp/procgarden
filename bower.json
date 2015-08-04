@@ -16,6 +16,8 @@
     "bootstrap-sass": "~3.3.5",
     "angular": "~1.4.3",
     "codemirror": "~5.5.0",
-    "angular-ui-codemirror": "~0.3.0"
+    "angular-ui-codemirror": "~0.3.0",
+    "angular-ui-bootstrap-bower": "~0.13.1",
+    "angular-select2": "~1.4.1"
   }
 }

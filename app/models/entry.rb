@@ -1,7 +1,9 @@
 class Entry < ActiveRecord::Base
-  VisibilityPublic = 0
-  VisibilityProtected = 1
-  VisibilityPrivate = 2
+  class Visibility
+    Public = 0
+    Protected = 1
+    Private = 2
+  end
 
   belongs_to :user
 
