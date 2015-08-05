@@ -1,8 +1,8 @@
 root = "/home/pg_front/nginx/pg.yutopp.net/current"
 working_directory root
 
-stderr_path "#{root}/log/unicorn.log"
-stdout_path "#{root}/log/unicorn.log"
+stderr_path "#{root}/log/unicorn.stdout.log"
+stdout_path "#{root}/log/unicorn.stderr.log"
 
 worker_processes 2
 timeout 30
@@ -17,8 +17,20 @@ before_fork do |server, worker|
     Process.kill 'QUIT', Process.pid
   end
 
-  defined?(ActiveRecord::Base) and
+  if defined?(ActiveRecord::Base)
     ActiveRecord::Base.connection.disconnect!
+  end
+
+  # Before forking, kill the master process that belongs to the .oldbin PID.
+  # This enables 0 downtime deploys.
+  old_pid = "#{server.config[:pid]}.oldbin"
+  if File.exists?(old_pid) && server.pid != old_pid
+    begin
+      Process.kill("QUIT", File.read(old_pid).to_i)
+    rescue Errno::ENOENT, Errno::ESRCH
+      # someone else did our job for us
+    end
+  end
 end
 
 after_fork do |server, worker|
@@ -26,8 +38,9 @@ after_fork do |server, worker|
     puts 'Unicorn worker intercepting TERM and doing nothing. Wait for master to send QUIT'
   end
 
-  defined?(ActiveRecord::Base) and
+  if defined?(ActiveRecord::Base)
     ActiveRecord::Base.establish_connection
+  end
 end
 
 # Force the bundler gemfile environment variable to
