@@ -2,7 +2,18 @@ module ProcGarden
   class API < Grape::API
     version 'v1', using: :path
     format :json
-    # error_formatter :json, Formatter::Error
+    default_error_formatter :json
+
+    rescue_from :all do |e|
+      Rails.logger.error e
+      Rack::Response.new(
+        {
+          error: "Exeption",
+          detail: "#{e}",
+        }.to_json,
+        500
+      ).finish
+    end
 
     helpers do
       def auth
@@ -122,7 +133,9 @@ module ProcGarden
           p tickets
 
           tickets.each do |ticket|
-            TickerExecutorJob.perform_later(ticket.id, source_codes.map{|s| s.id})
+            ProcGardenLib::BackgroundWorker.add(
+              ProcGardenLib::TicketExecutionTask.new(ticket.id, source_codes.map{|s| s.id})
+            )
           end
 
           p "FINIHSED!!!!!!!!!!"
@@ -170,5 +183,10 @@ module ProcGarden
       end # get '/:id'
 
     end # resource :tickets
+
+    #
+    route :any, '*path' do
+      error! # or something else
+    end
   end
 end

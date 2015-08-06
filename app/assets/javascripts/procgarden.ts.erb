@@ -27,7 +27,7 @@ module ProcGarden {
         is_link_independent: boolean;
         compile: ExecProfile;
         link: ExecProfile;
-        run: ExecProfile;       // not 'exec'. be careful3
+        exec: ExecProfile;
     }
 
     class SourceCode {
@@ -40,18 +40,10 @@ module ProcGarden {
         constructor() {
         }
 
-        public toRequest() {
-            return {
-                stdin: this.stdin,
-                commands: this.commands,
-                options: this.selectedOptions,
-            }
-        }
-
         public update(resp: Response.ExecStatus) {
             if ( resp == null ) return;
 
-            console.log(resp);
+            console.log("response", resp);
             this.nextOutputOffset = resp.outputs_next_offset;
             resp.outputs.forEach((out: Response.Output) => {
                 var decodedBuffer = Util.b64ToUtf8(out.buffer);
@@ -68,6 +60,20 @@ module ProcGarden {
             console.log(this.stdout);
         }
 
+        public reset() {
+            this.nextOutputOffset = 0;
+            this.stdout = "";
+            this.stderr = "";
+        }
+
+        public toRequest() {
+            return {
+                stdin: this.stdin,
+                commands: this.commands,
+                options: this.selectedOptions,
+            }
+        }
+
         // user input
         public stdin: string;
         public commands: Array<string>;
@@ -77,8 +83,8 @@ module ProcGarden {
         public options: Array<string>;
         public nextOutputOffset: number = 0;
 
-        public stdout: string = "aaa1";
-        public stderr: string = "aaa2";
+        public stdout: string = "";
+        public stderr: string = "";
     }
 
     class Ticket {
@@ -114,6 +120,18 @@ module ProcGarden {
         public reset() {
             this.phase = Response.Phase.waiting;
             this.isFinished = false;
+
+            if ( this.compile != null ) {
+                this.compile.reset();
+            }
+            if ( this.link != null ) {
+                this.link.reset();
+            }
+            if ( this.execs != null ) {
+                this.execs.forEach((e, index) => {
+                    e.reset();
+                });
+            }
         }
 
         public offsetValues() {
@@ -129,6 +147,17 @@ module ProcGarden {
             }
 
             return value;
+        }
+
+        public toRequest() {
+            return {
+                use: this.use,
+                version: this.version,
+                do_exec: this.do_exec,
+                compile: this.compile.toRequest(),
+                link: this.link.toRequest(),
+                execs: this.execs.map((e) => e.toRequest()),
+            }
         }
 
         // user
@@ -323,12 +352,13 @@ void main() {
                 this.$http.post('/api/v1/entries', {
                     visibility: 1,
                     source_codes: this.sourceCodes,
-                    tickets: this.tickets,
+                    tickets: this.tickets.map((t) => t.toRequest()),
                 }).success((data: any, status: any, headers: any, config: any) => {
                     // TODO: error check1
                     console.log("success", data);
 
                     data.ticket_ids.forEach((id: number, index: number) => {
+                        this.tickets[index].reset();
                         this.wait_for_ticket(id, this.tickets[index]);
                     });
 
@@ -340,7 +370,7 @@ void main() {
             }
 
             private wait_for_ticket(ticket_id: number, ticket: Ticket) {
-                console.log(ticket.offsetValues());
+                console.log("offset", ticket.offsetValues());
                 this.$http.get(`/api/v1/tickets/${ticket_id}`, {
                     params: {
                         offsets: ticket.offsetValues(),

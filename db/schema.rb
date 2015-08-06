@@ -13,6 +13,9 @@
 
 ActiveRecord::Schema.define(version: 20150802014650) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "entries", force: :cascade do |t|
     t.integer  "user_id"
     t.integer  "visibility"
@@ -44,9 +47,9 @@ ActiveRecord::Schema.define(version: 20150802014650) do
     t.integer  "exec_ticket_id"
   end
 
-  add_index "exec_tasks", ["compile_ticket_id"], name: "index_exec_tasks_on_compile_ticket_id"
-  add_index "exec_tasks", ["exec_ticket_id"], name: "index_exec_tasks_on_exec_ticket_id"
-  add_index "exec_tasks", ["link_ticket_id"], name: "index_exec_tasks_on_link_ticket_id"
+  add_index "exec_tasks", ["compile_ticket_id"], name: "index_exec_tasks_on_compile_ticket_id", using: :btree
+  add_index "exec_tasks", ["exec_ticket_id"], name: "index_exec_tasks_on_exec_ticket_id", using: :btree
+  add_index "exec_tasks", ["link_ticket_id"], name: "index_exec_tasks_on_link_ticket_id", using: :btree
 
   create_table "result_streams", force: :cascade do |t|
     t.integer  "exec_task_id"

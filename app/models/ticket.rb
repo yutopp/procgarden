@@ -39,4 +39,10 @@ class Ticket < ActiveRecord::Base
       execs: execs.sort{|a, b| a.index <=> b.index }.map.with_index{|e, i| e.to_show_hash(execs_offsets[i]) },
     }
   end
+
+  def set_phase(phase)
+    return if phase.nil?
+
+    self.phase = phase
+  end
 end
