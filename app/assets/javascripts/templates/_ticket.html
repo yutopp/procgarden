@@ -1,37 +1,37 @@
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-12">
+<div class="pg-ctrl-full">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
 
-            Phase: {{ctrl.ticket.phase}}<br>
+                Phase: {{ctrl.ticket.phase}}<br>
 
-            Ticket<br>
+                Ticket<br>
 
-            {{ctrl.ticket}}<br>
-            aaaaann<br>
+                ticket: {{ctrl.ticket}}<br>
+                current: {{ctrl.currentProfile}}<br>
 
-            ooon {{ctrl.currentProfile}}<br>
-
-            <div ng-show="ctrl.currentProfile.is_build_required">
-                <procgarden-ticket-exec
-                    exec="ticket.compile"
-                    exec-profile="$parent.ctrl.currentProfile.compile">
-                </procgarden-ticket-exec>
-
-                <div ng-show="ctrl.currentProfile.is_link_independent">
+                <div ng-show="ctrl.currentProfile.is_build_required">
                     <procgarden-ticket-exec
-                        exec="ticket.link"
-                        exec-profile="$parent.ctrl.currentProfile.link">
+                        exec="ticket.compile"
+                        exec-profile="$parent.ctrl.currentProfile.compile">
+                    </procgarden-ticket-exec>
+
+                    <div ng-show="ctrl.currentProfile.is_link_independent">
+                        <procgarden-ticket-exec
+                            exec="ticket.link"
+                            exec-profile="$parent.ctrl.currentProfile.link">
+                        </procgarden-ticket-exec>
+                    </div>
+                </div>
+
+                <div ng-repeat="exec in ticket.execs track by $index">
+                    <procgarden-ticket-exec
+                        exec="exec"
+                        exec-profile="$parent.ctrl.currentProfile.exec">
                     </procgarden-ticket-exec>
                 </div>
-            </div>
 
-            <div ng-repeat="exec in ticket.execs track by $index">
-                <procgarden-ticket-exec
-                    exec="exec"
-                    exec-profile="$parent.ctrl.currentProfile.exec">
-                </procgarden-ticket-exec>
             </div>
-
         </div>
     </div>
 </div>

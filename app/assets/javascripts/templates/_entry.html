@@ -16,23 +16,19 @@
 
         <!-- tickets -->
         <div class="pg-controller">
-            <div class="container-fluid pg-sub-container">
-                <div class="row">
-                    <div class="col-sm-12 pg-has-no-extra-space">
-                        <tabset>
-                            <tab ng-repeat="ticket in ctrl.tickets track by $index"
-                                 heading="ア！"
-                                 active="tab.active"
-                                 disable="tab.disabled">
-
-                                <procgarden-ticket ticket="ticket"></procgarden-ticket>
-                            </tab>
-                        </tabset>
-                    </div>
-                </div>
+            <div class="toolbar">
+                <input type="button" value="Submit" ng-click="ctrl.submit()">
             </div>
 
-            <input type="button" value="AAAA" ng-click="ctrl.submit()">
+            <tabset class="pg-tabset">
+                <tab ng-repeat="ticket in ctrl.tickets track by $index"
+                     heading="dlang"
+                     active="tab.active"
+                     disable="tab.disabled">
+
+                    <procgarden-ticket ticket="ticket"></procgarden-ticket>
+                </tab>
+            </tabset>
         </div>
         <!-- /tickets -->
 
