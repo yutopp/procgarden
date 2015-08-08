@@ -44,6 +44,16 @@ module ProcGarden {
             if ( resp == null ) return;
 
             console.log("response", resp);
+
+            this.exited = resp.exited;
+            this.exitStatus = resp.exit_status;
+            this.signaled = resp.signaled;
+            this.signal = resp.signal;
+            this.usedCpuTimeSec = resp.used_cpu_time_sec;
+            this.usedMemoryBytes = resp.used_memory_bytes;
+            this.systemErrorStatus = resp.system_error_status;
+            this.systemErrorMessage = resp.system_error_message;
+
             this.nextOutputOffset = resp.outputs_next_offset;
             resp.outputs.forEach((out: Response.Output) => {
                 var decodedBuffer = Util.b64ToUtf8(out.buffer);
@@ -56,11 +66,18 @@ module ProcGarden {
                     break
                 }
             });
-
-            console.log(this.stdout);
         }
 
         public reset() {
+            this.exited = null;
+            this.exitStatus = null;
+            this.signaled = null;
+            this.signal = null;
+            this.usedCpuTimeSec = null;
+            this.usedMemoryBytes = null;
+            this.systemErrorStatus = null;
+            this.systemErrorMessage = null;
+
             this.nextOutputOffset = 0;
             this.stdout = "";
             this.stderr = "";
@@ -248,10 +265,33 @@ module ProcGarden {
     module TicketExecDirective {
         export class Controller {
             constructor() {
-                console.log("exec inst", this);
+                console.log("exec", this);
             }
 
-            private exec: ExecInstruction;
+            public getFormattedCPUTime(): string {
+                if ( this.exec.usedCpuTimeSec == null ) {
+                    return "";
+                }
+                var lim = ( this.execProfile.cpu_limit != null ) ?
+                    `/${this.execProfile.cpu_limit}` : '';
+                return `${this.exec.usedCpuTimeSec.toFixed(4)}${lim}`;
+            }
+
+            public getFormattedMemoryUsage(): string {
+                if ( this.exec.usedMemoryBytes == null ) {
+                    return "";
+                }
+                var lim = ( this.execProfile.memory_limit != null ) ?
+                    `/${this.execProfile.memory_limit/1024}` : '';
+
+                return `${this.exec.usedMemoryBytes/1024}${lim}`;
+            }
+
+            public name: string;
+            public exec: ExecInstruction;
+            public execProfile: ExecProfile;
+
+            public isAccordionOpen: boolean = true;
         }
 
         export class Directive implements ng.IDirective {
@@ -260,13 +300,36 @@ module ProcGarden {
             replace = false;
             scope = true;
             bindToController = {
+                name: '@',
+                exec: '=',
+                execProfile: '=',
+                isAccordionOpen: '=',
+            };
+            controller = [Controller];
+            controllerAs = 'ctrl';
+
+            templateUrl = '<%= asset_path("templates/_ticket_exec.html") %>';
+        }
+    }
+
+    module TicketExecInputDirective {
+        export class Controller extends TicketExecDirective.Controller {
+        }
+
+        export class Directive implements ng.IDirective {
+            restrict = 'AE';
+            transclude = true;
+            replace = false;
+            scope = true;
+            bindToController = {
+                name: '@',
                 exec: '=',
                 execProfile: '=',
             };
             controller = [Controller];
             controllerAs = 'ctrl';
 
-            templateUrl = '<%= asset_path("templates/_ticket_exec.html") %>';
+            templateUrl = '<%= asset_path("templates/_ticket_exec_input.html") %>';
         }
     }
 
@@ -281,6 +344,56 @@ module ProcGarden {
             public selectProfile(index: number) {
                 this.currentProfile = this.profiles[index];
                 console.log(this.currentProfile);
+            }
+
+            public getPhaseText(): string {
+                switch(this.ticket.phase) {
+                case Response.Phase.waiting:
+                    return "Waiting...";
+                case Response.Phase.notExecuted:
+                    return "NotExecuted";
+                case Response.Phase.compiling:
+                    return "Compiling";
+                case Response.Phase.compiled:
+                    return "Compiled";
+                case Response.Phase.linking:
+                    return "Linking";
+                case Response.Phase.linked:
+                    return "Linked";
+                case Response.Phase.running:
+                    return "Running";
+                case Response.Phase.success:
+                    return "Finished";
+                case Response.Phase.error:
+                    return "SystemError";
+                }
+
+                return "";
+            }
+
+            public getPhaseStyle(): string {
+                switch(this.ticket.phase) {
+                case Response.Phase.waiting:
+                    return "label-info";
+                case Response.Phase.notExecuted:
+                    return "label-default"
+                case Response.Phase.compiling:
+                    return "label-warning";
+                case Response.Phase.compiled:
+                    return "label-success";
+                case Response.Phase.linking:
+                    return "label-warning";
+                case Response.Phase.linked:
+                    return "label-success";
+                case Response.Phase.running:
+                    return "label-primary";
+                case Response.Phase.success:
+                    return "label-success";
+                case Response.Phase.error:
+                    return "label-danger";
+                }
+
+                return "";
             }
 
             private ticket: Ticket;
@@ -348,7 +461,7 @@ module ProcGarden {
 
 void main() {
 	for(int i=0; i<20; ++i ) {
-    	"鳥小屋\x80\x24".writeln;
+    	"Hello World!".writeln;
     }
 }`;
 
@@ -427,6 +540,7 @@ void main() {
         .directive("procgardenEditor", () => new EditorDirective.Directive())
         .directive("procgardenTicket", () => new TicketDirective.Directive())
         .directive("procgardenTicketExec", () => new TicketExecDirective.Directive())
+        .directive("procgardenTicketExecInput", () => new TicketExecInputDirective.Directive())
 
     console.log('loaded');
 }

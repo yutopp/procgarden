@@ -1,6 +1,47 @@
-<div>
+<div class="pg-ticket-exec">
+    <accordion-group is-open="ctrl.isAccordionOpen"
+                     class="pg-accordion-group">
+        <accordion-heading>
+            <div class="row">
+                <div class="col-xs-2">
+                    <h6>{{ctrl.name}}</h6>
+                </div>
 
+                <div class="col-xs-2 text-center" ng-show="ctrl.exec.exited">
+                    <h6 tooltip="ExitCode"
+                        tooltip-append-to-body="true"
+                        tooltip-placement="bottom"
+                        style="{{ctrl.exec.exitStatus != 0 ? 'color: red;' : 'color: green'}}">
+                        <span class="glyphicon glyphicon-console"> {{ctrl.exec.exitStatus}}</span>
+                    </h6>
+                </div>
+                <div class="col-xs-2 text-center" ng-show="ctrl.exec.signaled">
+                    <h6 tooltip="Signal"
+                        tooltip-append-to-body="true"
+                        tooltip-placement="bottom">
+                        <span class="glyphicon glyphicon-bell"> {{ctrl.exec.signal}}</span>
+                    </h6>
+                </div>
 
-    <textarea>{{ctrl.exec.stdout}}</textarea>
-    <textarea>{{ctrl.exec.stderr}}</textarea>
+                <div class="col-xs-4 text-center" ng-show="ctrl.exec.usedCpuTimeSec != null">
+                    <h6 tooltip="CPU Time"
+                        tooltip-append-to-body="true"
+                        tooltip-placement="bottom">
+                        <span class="glyphicon glyphicon-time"> {{ctrl.getFormattedCPUTime()}} sec</span>
+                    </h6>
+                </div>
+                <div class="col-xs-4 text-center">
+                    <h6 tooltip="Memory Usage" ng-show="ctrl.exec.usedMemoryBytes != null"
+                        tooltip-append-to-body="true"
+                        tooltip-placement="bottom">
+                        <span class="glyphicon glyphicon-stats"> {{ctrl.getFormattedMemoryUsage()}} KiB</span>
+                    </h6>
+                </div>
+            </div>
+        </accordion-heading>
+
+        <textarea>{{ctrl.exec.stdout}}</textarea>
+        <textarea>{{ctrl.exec.stderr}}</textarea>
+
+    </accordion-group>
 </div>

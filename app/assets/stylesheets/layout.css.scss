@@ -164,6 +164,11 @@ $pg-space-size: 2px;
 
             .toolbar {
                 height: $toolbar-height;
+
+                // bootstrap
+                .btn {
+                    padding: 0.2em 0.8em;
+                }
             }
 
             // bootstrap
@@ -181,6 +186,7 @@ $pg-space-size: 2px;
                 left: 0;
 
                 overflow: auto;
+                overflow-x: hidden;
             }
 
             .nav-tabs > li > a {
@@ -240,6 +246,41 @@ $pg-space-size: 2px;
     .toolbar {
         .accessibility {
             text-align: right;
+        }
+    }
+}
+
+
+.pg-accordion {
+    .panel-group {
+        margin-bottom: 0;
+    }
+}
+
+.pg-ticket-exec {
+    .pg-accordion-group {
+        .for-label {
+            text-align: right;
+        }
+
+        .panel-heading {
+            padding: 0 0 0 10px;
+            padding-left: 10px;
+        }
+
+        .panel-heading h6 {
+            margin: 4px 4px;
+        }
+
+        .panel-body {
+            padding: 0px;
+        }
+
+        .sc-command-line {
+            margin-bottom: -4px;
+            display: inline-block;
+            width: 100%;
+            overflow-x: auto;
         }
     }
 }
