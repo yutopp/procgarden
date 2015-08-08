@@ -22,3 +22,10 @@
 // Templates in app/assets/javascripts/templates
 //= require_tree ./templates
 //= require_tree .
+
+
+// for turbolinks
+$(document).on('ready page:load', function() {
+    // app 'procgarden' is defined at procgarden.ts.erb
+    angular.bootstrap(document.body, ['procgarden']);
+});
