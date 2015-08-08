@@ -1,21 +1,41 @@
-<div>
-    <!-- source codes -->
-    <tabset>
-        <tab ng-repeat="sourceCode in ctrl.sourceCodes track by $index"
-             heading="{{sourceCode.filename}}" active="tab.active" disable="tab.disabled">
+<div class="pg-entry-section">
+    <div class="pg-inner-frame">
+        <!-- source codes -->
+        <div class="pg-editor">
+            <tabset class="pg-tabset">
+                <tab ng-repeat="sourceCode in ctrl.sourceCodes track by $index"
+                     heading="{{sourceCode.filename}}"
+                     active="tab.active"
+                     disable="tab.disabled">
 
-            <procgarden-editor source-code="sourceCode"></procgarden-editor>
-        </tab>
-    </tabset>
+                    <procgarden-editor source-code="sourceCode"></procgarden-editor>
+                </tab>
+            </tabset>
+        </div>
+        <!-- /source codes -->
 
-    <!-- tickets -->
-    <tabset>
-        <tab ng-repeat="ticket in ctrl.tickets track by $index"
-             heading="ア！" active="tab.active" disable="tab.disabled">
+        <!-- tickets -->
+        <div class="pg-controller">
+            <div class="container-fluid pg-sub-container">
+                <div class="row">
+                    <div class="col-sm-12 pg-has-no-extra-space">
+                        <tabset>
+                            <tab ng-repeat="ticket in ctrl.tickets track by $index"
+                                 heading="ア！"
+                                 active="tab.active"
+                                 disable="tab.disabled">
 
-            <procgarden-ticket ticket="ticket"></procgarden-ticket>
-        </tab>
-    </tabset>
+                                <procgarden-ticket ticket="ticket"></procgarden-ticket>
+                            </tab>
+                        </tabset>
+                    </div>
+                </div>
+            </div>
 
-    <input type="button" value="AAAA" ng-click="ctrl.submit()">
+            <input type="button" value="AAAA" ng-click="ctrl.submit()">
+        </div>
+        <!-- /tickets -->
+
+        <div class="pg-dummy"></div>
+    </div>
 </div>

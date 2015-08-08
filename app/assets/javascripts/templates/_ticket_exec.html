@@ -1,12 +1,5 @@
 <div>
-    <input ng-model="ctrl.exec.num">
 
-    <select2
-        ng-model="ctrl.selectedOptions"
-        s2-options="val.id as val.name for val in values"
-        multiple
-        options="{tags: ['a']}">
-    </select2>
 
     <textarea>{{ctrl.exec.stdout}}</textarea>
     <textarea>{{ctrl.exec.stderr}}</textarea>

@@ -83,8 +83,16 @@ module ProcGarden {
         public options: Array<string>;
         public nextOutputOffset: number = 0;
 
-        public stdout: string = "";
-        public stderr: string = "";
+        public stdout: string;
+        public stderr: string;
+        public exited: boolean;
+        public exitStatus: number;
+        public signaled: boolean;
+        public signal: number;
+        public usedCpuTimeSec: number;
+        public usedMemoryBytes: number;
+        public systemErrorStatus: number;
+        public systemErrorMessage: string;
     }
 
     class Ticket {
@@ -305,7 +313,7 @@ module ProcGarden {
             }
 
             private codemirrorLoaded(editor: CodeMirror.Editor) {
-                editor.setSize(200, 100);
+                //editor.setSize('100%', '100%');
             }
 
             private sourceCode: SourceCode;
@@ -344,7 +352,7 @@ void main() {
     }
 }`;
 
-                this.sourceCodes = [new SourceCode('aaa.d', txt)];
+                this.sourceCodes = [new SourceCode('main.d', txt)];
                 this.tickets = [new Ticket()];
             }
 
@@ -412,7 +420,7 @@ void main() {
         }
     }
 
-    var app = angular.module("procgarden", ['ui.bootstrap', 'ui.codemirror', 'rt.select2']);
+    var app = angular.module("procgarden", ['ui.bootstrap', 'ui.codemirror']);
 
     app
         .directive("procgardenEntry", () => new EntryDirective.Directive())

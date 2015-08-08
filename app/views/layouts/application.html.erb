@@ -16,9 +16,9 @@
 
     <body ng-app="procgarden">
         <%# container %>
-        <div class="container-fluid sc-top-container">
+        <div class="container-fluid pg-top-container">
             <%# header %>
-            <div class="navbar navbar-procgarden navbar-fixed-top" role="navigation">
+            <div class="navbar pg-navbar navbar-fixed-top" role="navigation">
                 <div class="container-fluid">
                     <div class="navbar-header">
                         <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
@@ -44,7 +44,7 @@
         <%# /container %>
 
         <%# body %>
-        <div class="main-container" ng-view>
+        <div class="pg-main-container">
 
             <%= yield %>
 
