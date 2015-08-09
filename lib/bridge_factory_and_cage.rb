@@ -1,6 +1,7 @@
 require 'singleton'
 require 'net/http'
 require 'json'
+require 'torigoya_kit'
 
 module BridgeFactoryAndCage
   CageAddr = Struct.new(:host, :port)
@@ -20,6 +21,29 @@ module BridgeFactoryAndCage
           CageAddr.new("localhost", 23456)
         ]
       end
+    end
+
+    def make_client
+      addr = self.sample
+      return TorigoyaKit::Client.new(addr.host, addr.port)
+    end
+
+    def update_all_nodes
+      succeeded = true
+
+      @cages.each do |addr|
+        begin
+          c = TorigoyaKit::Client.new(addr.host, addr.port)
+          resp = c.update_packages()
+          raise "" if resp != 0
+
+        rescue => e
+          Rails.logger.log "Failed to update packages of node #{addr.host}:#{addr.port}"
+          succeeded &&= false
+        end
+      end
+
+      return succeeded
     end
 
     def sample

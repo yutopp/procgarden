@@ -19,7 +19,7 @@ module ProcGardenLib
 
   class ExecProfile
     def initialize(hash)
-      @extention = hash['extension']    # string
+      @extension = hash['extension']    # string
       @raw_commands = hash['commands']  # []string
       @raw_envs = hash['envs']          # map[string]string
       @fixed_commands = hash['fixed_commands']          # [][]string
@@ -27,7 +27,7 @@ module ProcGardenLib
       @cpu_limit = hash['cpu_limit']        # number
       @memory_limit = hash['memory_limit']  # number
     end
-    attr_reader :extention, :raw_commands, :raw_envs, :fixed_commands, :selectable_options
+    attr_reader :extension, :raw_commands, :raw_envs, :fixed_commands, :selectable_options
     attr_reader :cpu_limit, :memory_limit
   end
 

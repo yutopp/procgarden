@@ -1,0 +1,27 @@
+<div>
+    <%# TODO: change id. it will conflict when multiple ticket are implemented %>
+    <div class="btn-group pg-language-selector" dropdown is-open="ctrl.isOpen">
+        <button id="pg-language-selector-button"
+                type="button"
+                class="btn btn-primary"
+                dropdown-toggle
+                ng-disabled="disabled">
+            {{ctrl.currentProfile.name}} - {{ctrl.currentProfile.version}}<span class="caret"></span>
+        </button>
+
+        <div class="dropdown-menu"
+             role="menu"
+             aria-labelledby="pg-language-selector-button">
+            <ul ng-repeat="profName in ctrl.namesList">
+                <li><a href ng-click="ctrl.selectName(profName)">{{profName}}</a></li>
+            </ul>
+
+            <hr>
+            Versions: {{ctrl.selectingName}}<br>
+
+            <ul ng-repeat="v in ctrl.versionsList[ctrl.selectingName]">
+                <li><a href ng-click="ctrl.selectVersion(v.version)">{{v.displayVersion}}</a></li>
+            </ul>
+        </div>
+    </div>
+</div>

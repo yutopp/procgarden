@@ -4,7 +4,7 @@
         <div class="pg-editor">
             <tabset class="pg-tabset">
                 <tab ng-repeat="sourceCode in ctrl.sourceCodes track by $index"
-                     heading="{{sourceCode.filename}}"
+                     heading="{{sourceCode.filename}}.{{sourceCode.extension}}"
                      active="tab.active"
                      disable="tab.disabled">
 
@@ -25,7 +25,7 @@
 
             <tabset class="pg-tabset">
                 <tab ng-repeat="ticket in ctrl.tickets track by $index"
-                     heading="dlang"
+                     heading="{{ticket.use}}"
                      active="tab.active"
                      disable="tab.disabled">
 

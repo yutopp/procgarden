@@ -3,6 +3,11 @@
         <div class="row pg-has-no-extra-space">
             <div class="col-sm-12 pg-has-no-extra-space">
 
+                <procgarden-language-selector
+                    profiles="$parent.ctrl.profiles"
+                    current-profile="$parent.ctrl.currentProfile">
+                </procgarden-language-selector>
+
                 <span class="label" ng-class="ctrl.getPhaseStyle()">
                     {{ctrl.getPhaseText()}}
                 </span>

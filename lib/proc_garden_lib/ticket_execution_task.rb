@@ -31,9 +31,7 @@ class ProcGardenLib::TicketExecutionTask
 
 
     cage_bridge = BridgeFactoryAndCage::CagesBridge.instance
-
-    addr = cage_bridge.sample
-    client = TorigoyaKit::Client.new(addr.host, addr.port)
+    client = cage_bridge.make_client()
 
     #
     s_ticket = ProcGardenLib.create_kit_ticket_from_model(ticket, source_codes, profile)

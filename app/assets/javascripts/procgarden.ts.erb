@@ -10,7 +10,7 @@ module ProcGarden {
     declare var gon: Gon;
 
     interface ExecProfile {
-        extention: string;
+        extension: string;
         raw_commands: Array<string>;
         raw_envs: {[key: string]: string};
         fixed_commands: Array<Array<string>>;
@@ -31,8 +31,25 @@ module ProcGarden {
     }
 
     class SourceCode {
-        constructor(public filename: string, public code: string) {
+        constructor(
+            public filename: string,
+            public extension: string,
+            public code: string
+        ) {
         }
+
+        public setExecProfile(ep: ExecProfile) {
+            this.execProfile = ep;
+        }
+
+        public toRequest() {
+            return {
+                filename: `${this.filename}.${this.extension}`,
+                code: this.code,
+            }
+        }
+
+        public execProfile: ExecProfile;
     }
 
 
@@ -337,7 +354,6 @@ module ProcGarden {
         export class Controller {
             constructor() {
                 this.profiles = gon.profiles;
-                console.log(this.profiles);
                 this.selectProfile(0);
             }
 
@@ -396,9 +412,18 @@ module ProcGarden {
                 return "";
             }
 
+            public updateTicket() {
+                this.ticket.use = this.currentProfile.name;
+                this.ticket.version = this.currentProfile.version;
+            }
+
             private ticket: Ticket;
             private profiles: Array<Profile>;
             private currentProfile: Profile;
+        }
+
+        interface Scope extends ng.IScope {
+            ctrl: Controller;
         }
 
         export class Directive implements ng.IDirective {
@@ -406,7 +431,7 @@ module ProcGarden {
             transclude = true;
             replace = true;
             scope = true;
-            //require = ['^procgardenEntry'];
+            require = ['^procgardenEntry'];
             bindToController = {
                 ticket: '=',
                 profiles: '=',
@@ -416,6 +441,109 @@ module ProcGarden {
             controllerAs = 'ctrl';
 
             templateUrl = '<%= asset_path("templates/_ticket.html") %>';
+
+            link = (
+                scope: Scope,
+                element: ng.IAugmentedJQuery,
+                attr: any,
+                ctrls: [EntryDirective.Controller]
+            ) => {
+                scope.$watch(
+                    "ctrl.currentProfile",
+                    (newValue: Profile, oldValue: Profile) => {
+                        // update ticket
+                        scope.ctrl.updateTicket();
+
+                        //
+                        ctrls[0].changeProfile(newValue);
+                    }
+                );
+            }
+        }
+
+        //
+        export module LanguageSelector {
+            interface VersionSet {
+                version: string;
+                displayVersion: string;
+            }
+
+            export class Controller {
+                constructor() {
+                    this.makeLists();
+                }
+
+                private makeLists() {
+                    this.namesList =
+                        this.profiles.map((p) => p.name)
+                            .filter((x, i, self) => self.indexOf(x) === i)
+                            .sort();
+
+                    this.profiles.forEach((p) => {
+                        if ( this.versionsList[p.name] == null ) {
+                            this.versionsList[p.name] = [];
+                        }
+                        this.versionsList[p.name].unshift({
+                            version: p.version,
+                            displayVersion: p.display_version
+                        });
+                    });
+
+                    // TODO: load from cookie
+                    this.selectingName = this.namesList[0];
+                }
+
+                public selectName(name: string) {
+                    this.selectingName = name;
+                }
+
+                public selectVersion(version: string) {
+                    // same as find
+                    var select = this.profiles.filter((p) => {
+                        return p.name == this.selectingName &&
+                            p.version == version;
+                    })[0];
+                    if ( select == null ) {
+                        return;
+                    }
+
+                    this.currentProfile = select;
+                    this.isOpen = false;
+                }
+
+                public profiles: Array<Profile>;
+                public currentProfile: Profile;
+
+                public namesList: Array<string> = [];
+                public versionsList: {[key: string]: Array<VersionSet>} = {};
+                public selectingName: string = "";
+
+                // UI;
+                public isOpen: boolean = false;
+            }
+
+            export class Directive implements ng.IDirective {
+                restrict = 'AE';
+                transclude = true;
+                replace = true;
+                scope = true;
+                bindToController = {
+                    profiles: '=',
+                    currentProfile: '=',
+                    isOpen: '=',
+                };
+                controller = [Controller];
+                controllerAs = 'ctrl';
+
+                templateUrl = '<%= asset_path("templates/_language_selector.html") %>';
+
+                link = (scope: ng.IScope, element: ng.IAugmentedJQuery) => {
+                    // prevent closing elements when selecting a version
+                    element.find('.pg-language-selector *').click((e) => {
+                        e.stopPropagation();
+                    });
+                }
+            }
         }
     }
 
@@ -426,13 +554,51 @@ module ProcGarden {
             }
 
             private codemirrorLoaded(editor: CodeMirror.Editor) {
-                //editor.setSize('100%', '100%');
+                this.editor = editor;
+            }
+
+            public updateExecProfile(prof: ExecProfile) {
+                // TODO: fix
+                this.sourceCode.extension = prof.extension;
+
+                // UI
+                if ( this.editor == null ) {
+                    return;
+                }
+
+                var lang = (() => {
+                    switch (prof.extension) {
+                    case 'cpp':
+                        return { mime: "text/x-c++src", mode: "clike" };
+                    case 'd':
+                        return { mime: "text/x-d", mode: "d" };
+                    default:
+                        return null;
+                    }
+                })();
+                if ( lang == null ) {
+                    return
+                }
+                this.editor.setOption("mode", lang.mime);
+                // autoLoadMode is defined at codemirror/addon/mode/loadmode.js
+                (<any>CodeMirror).modeURL = '/assets/codemirror/mode/%N/%N.js';
+                (<any>CodeMirror).autoLoadMode(this.editor, lang.mode);
+
+                this.editor.refresh();
             }
 
             private sourceCode: SourceCode;
+            private onLoad = {
+                onLoad : (e: CodeMirror.Editor) => this.codemirrorLoaded(e),
+            };
             private options = {
                 lineNumbers: true,
             };
+            private editor: CodeMirror.Editor;
+        }
+
+        interface Scope extends ng.IScope {
+            ctrl: Controller;
         }
 
         export class Directive implements ng.IDirective {
@@ -447,6 +613,19 @@ module ProcGarden {
             controllerAs = 'ctrl';
 
             templateUrl = '<%= asset_path("templates/_editor.html") %>';
+
+            link = (scope: Scope, element: ng.IAugmentedJQuery) => {
+                scope.$watch(
+                    "ctrl.sourceCode.execProfile",
+                    (newValue: ExecProfile, oldValue: ExecProfile) => {
+                        if ( newValue == null ) {
+                            return;
+                        }
+
+                        scope.ctrl.updateExecProfile(newValue);
+                    }
+                );
+            }
         }
     }
 
@@ -465,14 +644,14 @@ void main() {
     }
 }`;
 
-                this.sourceCodes = [new SourceCode('main.d', txt)];
+                this.sourceCodes = [new SourceCode('main', '', txt)];
                 this.tickets = [new Ticket()];
             }
 
             public submit() {
                 this.$http.post('/api/v1/entries', {
                     visibility: 1,
-                    source_codes: this.sourceCodes,
+                    source_codes: this.sourceCodes.map((s) => s.toRequest()),
                     tickets: this.tickets.map((t) => t.toRequest()),
                 }).success((data: any, status: any, headers: any, config: any) => {
                     // TODO: error check1
@@ -513,6 +692,13 @@ void main() {
                 });
             }
 
+            public changeProfile(prof: Profile) {
+                var source_exec = prof.is_build_required ? prof.compile : prof.exec;
+                this.sourceCodes.forEach((s) => {
+                    s.setExecProfile(source_exec);
+                });
+            }
+
             public sourceCodes: Array<SourceCode>;
             public tickets: Array<Ticket>;
         }
@@ -539,6 +725,7 @@ void main() {
         .directive("procgardenEntry", () => new EntryDirective.Directive())
         .directive("procgardenEditor", () => new EditorDirective.Directive())
         .directive("procgardenTicket", () => new TicketDirective.Directive())
+        .directive("procgardenLanguageSelector", () => new TicketDirective.LanguageSelector.Directive())
         .directive("procgardenTicketExec", () => new TicketExecDirective.Directive())
         .directive("procgardenTicketExecInput", () => new TicketExecInputDirective.Directive())
 
