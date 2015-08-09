@@ -40,7 +40,7 @@ module Procgarden
     ::Sass::Script::Value::Number.precision = [8, ::Sass::Script::Value::Number.precision].max
 
     #
-    config.assets.precompile << ["codemirror*", "codemirror/**/*"]
+    config.assets.precompile << ["codemirror/mode/*"]
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
