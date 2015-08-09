@@ -33,5 +33,5 @@ production:
   database: <%= ENV['DATABASE_NAME'] %>
   username: <%= ENV['DATABASE_USER'] %>
   password: <%= ENV['DATABASE_PASSWORD'] %>
-  pool: 10
+  pool: 24
   timeout: 5000
