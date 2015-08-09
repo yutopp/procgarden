@@ -555,6 +555,11 @@ module ProcGarden {
 
             private codemirrorLoaded(editor: CodeMirror.Editor) {
                 this.editor = editor;
+
+                // TODO: fix
+                this.editor.setOption('tabSize', 4);
+                this.editor.setOption('indentUnit', 4);
+                this.editor.refresh();
             }
 
             public updateExecProfile(prof: ExecProfile) {
@@ -636,12 +641,17 @@ module ProcGarden {
                 private $http: ng.IHttpService,
                 private $timeout: ng.ITimeoutService
             ) {
-                var txt = `import std.stdio;
+                var txt = `#include <iostream>
 
-void main() {
-	for(int i=0; i<20; ++i ) {
-    	"Hello World!".writeln;
-    }
+int main()
+{
+    std::cout << "hello!" << std::endl;
+    int n, m;
+    std::cin >> n;
+    std::cout << "n = " << n << std::endl;
+    std::cin >> m;
+    std::cout << "m = " << m << std::endl;
+    std::cout << "n + m = " << n + m << std::endl;
 }`;
 
                 this.sourceCodes = [new SourceCode('main', '', txt)];
