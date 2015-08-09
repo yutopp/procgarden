@@ -117,8 +117,8 @@ module ProcGarden {
         public options: Array<string>;
         public nextOutputOffset: number = 0;
 
-        public stdout: string;
-        public stderr: string;
+        public stdout: string = "";
+        public stderr: string = "";
         public exited: boolean;
         public exitStatus: number;
         public signaled: boolean;
@@ -586,8 +586,8 @@ module ProcGarden {
                 }
                 this.editor.setOption("mode", lang.mime);
                 // autoLoadMode is defined at codemirror/addon/mode/loadmode.js
-                (<any>CodeMirror).modeURL = '/assets/codemirror/mode/%N/%N.js';
-                (<any>CodeMirror).autoLoadMode(this.editor, lang.mode);
+                //(<any>CodeMirror).modeURL = '/assets/codemirror/mode/%N/%N.js';
+                //(<any>CodeMirror).autoLoadMode(this.editor, lang.mode);
 
                 this.editor.refresh();
             }

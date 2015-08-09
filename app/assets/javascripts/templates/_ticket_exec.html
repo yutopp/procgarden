@@ -4,7 +4,10 @@
         <accordion-heading>
             <div class="row">
                 <div class="col-xs-2">
-                    <h6>{{ctrl.name}}</h6>
+                    <h6>
+                        <span class="glyphicon glyphicon-chevron-{{ctrl.isAccordionOpen ? 'up' : 'down'}}"></span>
+                        {{ctrl.name}}
+                    </h6>
                 </div>
 
                 <div class="col-xs-2 text-center" ng-show="ctrl.exec.exited">
@@ -40,8 +43,45 @@
             </div>
         </accordion-heading>
 
-        <textarea>{{ctrl.exec.stdout}}</textarea>
-        <textarea>{{ctrl.exec.stderr}}</textarea>
+        <div class="row"
+             ng-show="ctrl.exec.stdout.length>0">
+            <div class="col-sm-12 pg-output-layout">
+                <span class="pg-output-tag pg-stdout-schema"
+                      ng-hide="ctrl.ui.tip_stdout">
+                    stdout
+                </span>
+
+                <textarea scroll-glue
+                          ng-model="ctrl.exec.stdout"
+                          ng-mouseover="ctrl.ui.tip_stdout=true"
+                          ng-mouseleave="ctrl.ui.tip_stdout=false"
+                          class="pg-output pg-stdout-schema"
+                          rows="8"
+                          readonly
+                          wrap="ctrl.ui.wrap_stdout}}">
+                </textarea>
+            </div>
+        </div>
+
+        <div class="row"
+             ng-show="ctrl.exec.stderr.length>0">
+            <div class="col-sm-12 pg-output-layout">
+                <span class="pg-output-tag pg-stderr-schema"
+                      ng-hide="ctrl.ui.tip_stderr">
+                    stderr
+                </span>
+
+                <textarea scroll-glue
+                          ng-model="ctrl.exec.stderr"
+                          ng-mouseover="ctrl.ui.tip_stderr=true"
+                          ng-mouseleave="ctrl.ui.tip_stderr=false"
+                          class="pg-output pg-stderr-schema"
+                          rows="8"
+                          readonly
+                          wrap="ctrl.ui.wrap_stdout}}">
+                </textarea>
+            </div>
+        </div>
 
     </accordion-group>
 </div>

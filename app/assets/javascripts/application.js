@@ -17,7 +17,8 @@
 //= require angular/angular
 //= require angular-ui-bootstrap-bower
 //= require codemirror
-//= require codemirror/addon/mode/loadmode
+//= require codemirror/mode/clike/clike
+//= require codemirror/mode/d/d
 //= require angular-ui-codemirror
 //
 // Templates in app/assets/javascripts/templates
